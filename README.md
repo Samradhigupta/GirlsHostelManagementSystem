@@ -1,83 +1,78 @@
-# Girls Hostel Management System
+# 🏠 Girls Hostel Management System
 
-A hostel management system with a Java backend (plain `HttpServer`, no
-framework) and an HTML/CSS/JavaScript frontend. Data is stored in MySQL.
+A full-stack **Girls Hostel Management System** developed using **Java, JDBC, MySQL, HTML, CSS, and JavaScript**. The system provides separate **Admin** and **Student** dashboards to efficiently manage hostel operations such as student records, room allocation, rent management, complaints, leave requests, notices, facilities, and staff management.
 
-## 1. Requirements
+## ✨ Features
 
-- **JDK 17+** (any recent Java Development Kit)
-- **MySQL Server** running locally
-- **VS Code** with the **"Extension Pack for Java"** (Microsoft) installed
-  — this gives you Run/Debug buttons for `src/main.java` and reads the
-  MySQL driver jar automatically via `.vscode/settings.json`.
+### 👩‍💼 Admin Module
 
-## 2. One-time database setup
+* Secure Admin Login
+* Dashboard Overview
+* Student Management (Add, View, Update, Delete)
+* Employee Management
+* Room Management
+* Facility Management
+* Notice Management
+* Rent Management
+* Complaint Management
+* Leave Request Approval/Rejection
 
-1. Make sure MySQL is running.
-2. Run the schema script once, either via the command line:
-   ```
-   mysql -u root -p < database/schema.sql
-   ```
-   or by opening `database/schema.sql` in MySQL Workbench (or any MySQL
-   client) and executing it.
-   This creates the `hostel_management` database, every table the app
-   needs, a default admin login (`admin` / `admin123`), and a few sample
-   rooms.
-3. Open `src/database/DBConnection.java` and set `user` / `password` to
-   **your own** MySQL credentials (the values that ship in this file are
-   a placeholder and will not match your installation).
+### 🎓 Student Module
 
-## 3. Running the backend (in VS Code)
+* Secure Student Login
+* Personal Profile with Photo
+* View Notices
+* Submit Complaints
+* Track Complaint Status
+* Apply for Leave
+* View Leave Status
+* View Rent Details
+* View Hostel Facilities
+* View Employee Information
 
-1. Open this folder in VS Code.
-2. Open `src/main.java`.
-3. Click the **Run** button above `public static void main(...)` (or
-   press `F5`). VS Code's Java extension will compile everything in
-   `src/` automatically, including the MySQL driver from `lib/`.
-4. You should see in the terminal:
-   ```
-   Database Connected Successfully!
-   ✅ Hostel Server Running on Port 8080
-   ```
-   Leave this running — it's your backend API server.
+## 🛠️ Technologies Used
 
-   If you see a database error instead, re-check step 2 and 3 above.
+* Java
+* JDBC
+* MySQL
+* HTML5
+* CSS3
+* JavaScript
+* HTTP Server (Java)
 
-## 4. Running the frontend (in the browser)
+## 📂 Project Structure
 
-The backend only serves data (no HTML), so open the pages directly:
+* `server/` – HTTP Request Handlers
+* `dao/` – Database Operations
+* `model/` – Java Models
+* `database/` – MySQL Connection
+* `web/` – HTML, CSS & JavaScript Files
 
-- Double-click `web/login.html`, **or**
-- In VS Code, right-click `web/login.html` → "Open with Live Server"
-  (if you have the Live Server extension), **or**
-- Open it directly via `File > Open File` in your browser.
+## 🚀 How to Run
 
-The frontend talks to the backend at `http://localhost:8080`, so make
-sure the server from step 3 is still running before you log in.
+1. Start MySQL Server.
+2. Import the database.
+3. Configure database credentials in `DBConnection.java`.
+4. Run `HostelServer.java`.
+5. Open `login.html` using Live Server or your browser.
 
-**Default admin login:** username `admin`, password `admin123`
-(from the schema script — change it any time from the `admins` table).
+## 📸 Screenshots
 
-To create a student account, log in as Admin and use
-**Students → Register New Student**.
+Add screenshots of:
 
-## 5. Project structure
+* Login Page
+<img width="1913" height="898" alt="image" src="https://github.com/user-attachments/assets/a8658934-8da5-4be3-93e9-70cb73bf563d" />
 
-```
-src/
-  main.java            Entry point — starts HostelServer
-  server/              HTTP request handlers (one per API endpoint)
-  dao/                 Database access (JDBC) classes
-  model/               Plain data classes (Student, Room, Rent, ...)
-  database/            DBConnection.java — MySQL connection settings
-web/
-  login.html           Login page
-  admin.html           Admin dashboard
-  student.html         Student dashboard
-  js/, css/            Frontend scripts and styles
-database/
-  schema.sql           Run this once to create the MySQL database
-lib/
-  mysql-connector-j-.../  MySQL JDBC driver (already referenced by
-                           .vscode/settings.json — no extra setup needed)
-```
+* Admin Dashboard
+<img width="1918" height="901" alt="image" src="https://github.com/user-attachments/assets/56bdd876-5d67-402f-85b9-ca4d2b19f174" />
+
+* Student Dashboard
+* <img width="1919" height="904" alt="image" src="https://github.com/user-attachments/assets/5cf42bc3-2f8a-43dd-9278-cb65570c6225" />
+
+## 👩‍💻 Developer
+
+**Samradhi Gupta**
+
+---
+
+⭐ If you like this project, don't forget to give it a Star!
