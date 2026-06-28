@@ -26,6 +26,7 @@
             min-height: 100vh;
             display: grid;
             grid-template-columns: 1fr 1fr;
+            background: var(--slate-100);
         }
 
         /* ── Left panel ── */
@@ -66,10 +67,11 @@
             font-size: 28px;
             margin-bottom: 40px;
             backdrop-filter: blur(4px);
+            flex-shrink: 0;
         }
 
         .panel-left h1 {
-            font-size: 36px;
+            font-size: clamp(24px, 3vw, 36px);
             font-weight: 700;
             color: #fff;
             line-height: 1.25;
@@ -136,9 +138,7 @@
             margin-bottom: 36px;
         }
 
-        .field-group {
-            margin-bottom: 20px;
-        }
+        .field-group { margin-bottom: 20px; }
 
         .field-group label {
             display: block;
@@ -238,10 +238,91 @@
             text-align: center;
         }
 
-        @media (max-width: 768px) {
-            body { grid-template-columns: 1fr; }
+        /* ════════════════════════════════════
+           RESPONSIVE MEDIA QUERIES
+        ════════════════════════════════════ */
+
+        /* Tablets: stack panels vertically, show left panel as banner */
+        @media (max-width: 900px) {
+            body {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+            }
+
+            .panel-left {
+                padding: 36px 32px 32px;
+                align-items: center;
+                text-align: center;
+            }
+
+            .panel-left p { max-width: 100%; }
+
+            .panel-left h1 { font-size: 26px; }
+
+            .brand-icon { margin-bottom: 20px; }
+
+            .features {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                margin-top: 24px;
+                gap: 10px;
+            }
+
+            .panel-right {
+                padding: 40px 32px;
+            }
+        }
+
+        /* Mobile: hide left panel, full-width form */
+        @media (max-width: 600px) {
+            body {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr;
+                min-height: 100vh;
+                align-items: stretch;
+            }
+
             .panel-left { display: none; }
-            .panel-right { padding: 40px 24px; }
+
+            .panel-right {
+                padding: 40px 20px 32px;
+                justify-content: flex-start;
+                min-height: 100vh;
+            }
+
+            /* Compact top branding on mobile */
+            .panel-right::before {
+                content: '🏠  Girls Hostel Management';
+                display: block;
+                font-size: 15px;
+                font-weight: 700;
+                color: var(--indigo);
+                text-align: center;
+                margin-bottom: 28px;
+                background: var(--indigo-lt);
+                padding: 10px 16px;
+                border-radius: 10px;
+                width: 100%;
+            }
+
+            .login-card {
+                max-width: 100%;
+            }
+
+            .login-card h2 { font-size: 22px; }
+
+            .role-tab { font-size: 12px; padding: 9px 6px; }
+
+            .btn-login { padding: 13px; font-size: 14px; }
+
+            .footer-note { margin-top: 24px; }
+        }
+
+        /* Very small phones */
+        @media (max-width: 360px) {
+            .panel-right { padding: 28px 14px; }
+            .feature-pill { font-size: 12px; padding: 8px 12px; }
         }
     </style>
 </head>

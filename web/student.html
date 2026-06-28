@@ -21,6 +21,7 @@
             --border:    #e2e8f0;
             --text:      #1e293b;
             --muted:     #64748b;
+            --topbar-h:  60px;
         }
 
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -43,8 +44,9 @@
             flex-shrink: 0;
             position: fixed;
             top:0; left:0; bottom:0;
-            z-index: 100;
+            z-index: 200;
             overflow-y: auto;
+            transition: transform 0.28s cubic-bezier(.4,0,.2,1);
         }
 
         .sidebar-brand {
@@ -124,37 +126,75 @@
             border-top: 1px solid rgba(255,255,255,0.07);
         }
 
+        /* ── OVERLAY ── */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 199;
+            backdrop-filter: blur(2px);
+        }
+
         /* ── MAIN ── */
         .main {
             margin-left: var(--sidebar-w);
             flex: 1; display: flex; flex-direction: column; min-height: 100vh;
+            min-width: 0;
         }
 
+        /* ── TOPBAR ── */
         .topbar {
             background: var(--card);
             border-bottom: 1px solid var(--border);
             padding: 0 24px;
-            height: 60px;
+            height: var(--topbar-h);
             display: flex; align-items: center; justify-content: space-between;
             position: sticky; top:0; z-index:50;
+            gap: 10px;
         }
 
-        .topbar-title { font-size: 16px; font-weight: 600; }
+        .topbar-left { display:flex; align-items:center; gap:12px; min-width:0; }
 
-        .topbar-right { display:flex; align-items:center; gap:10px; }
+        /* Hamburger — mobile only */
+        .btn-hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            color: var(--muted);
+            font-size: 20px;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .btn-hamburger:hover { background: var(--bg); }
+
+        .topbar-title {
+            font-size: 16px; font-weight: 600;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .topbar-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
 
         .topbar-user {
             font-size: 13px; font-weight: 600;
             color: var(--accent);
             background: #dbeafe;
             padding: 5px 12px; border-radius: 20px;
+            white-space: nowrap;
         }
 
+        /* ── PAGES ── */
         .page { padding: 24px; flex:1; }
 
         .page-header {
             display: flex; align-items: center; justify-content: space-between;
             margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .page-title { font-size: 22px; font-weight: 700; }
@@ -205,21 +245,21 @@
             border-bottom: 1px solid var(--border);
             display: flex; align-items: center; justify-content: space-between;
             background: #fafbff;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        .card-header h2 {
-            font-size: 15px; font-weight: 600;
-        }
-
+        .card-header h2 { font-size: 15px; font-weight: 600; }
         .card-body { padding: 20px; }
 
-        /* ── PAGES ── */
+        /* ── HIDDEN PAGES ── */
         .pg { display:none; }
         .pg.active { display:block; }
 
         /* ── PROFILE CARD ── */
         .profile-card {
             display: flex; gap: 24px; align-items: flex-start;
+            flex-wrap: wrap;
         }
 
         .profile-avatar {
@@ -235,7 +275,7 @@
 
         .profile-avatar img { width:100%; height:100%; object-fit:cover; }
 
-        .profile-details { flex:1; }
+        .profile-details { flex:1; min-width: 200px; }
 
         .profile-details table { border-collapse:collapse; width:100%; font-size:13px; }
         .profile-details td { padding:9px 12px; border-bottom:1px solid #f1f5f9; }
@@ -265,9 +305,9 @@
         }
 
         /* ── TABLE ── */
-        .tbl-wrap { overflow-x:auto; }
+        .tbl-wrap { overflow-x:auto; -webkit-overflow-scrolling: touch; }
 
-        table.data-tbl { width:100%; border-collapse:collapse; font-size:13px; }
+        table.data-tbl { width:100%; border-collapse:collapse; font-size:13px; min-width: 420px; }
 
         table.data-tbl thead th {
             background: #f8fafc;
@@ -277,6 +317,7 @@
             letter-spacing:.05em; text-transform:uppercase;
             color: var(--muted);
             border-bottom: 1px solid var(--border);
+            white-space: nowrap;
         }
 
         table.data-tbl tbody td {
@@ -293,6 +334,7 @@
             padding: 9px 18px; border-radius: 8px;
             border: none; font-size: 13px; font-weight: 600;
             cursor: pointer; transition: background .15s;
+            white-space: nowrap;
         }
 
         .btn-primary  { background: var(--accent); color: #fff; }
@@ -314,10 +356,7 @@
 
         .form-group.full { grid-column:1/-1; }
 
-        .form-group label {
-            font-size: 12px; font-weight: 600; color: #374151;
-        }
-
+        .form-group label { font-size: 12px; font-weight: 600; color: #374151; }
         .form-group label .req { color: var(--red); margin-left: 2px; }
 
         .form-group input,
@@ -330,6 +369,7 @@
             background: #fff; outline: none;
             font-family: inherit;
             transition: border-color .15s;
+            width: 100%;
         }
 
         .form-group input:focus,
@@ -362,6 +402,7 @@
             margin-top:24px; padding-top:18px;
             border-top:1px solid var(--border);
             grid-column:1/-1;
+            flex-wrap: wrap;
         }
 
         /* ── BADGE ── */
@@ -388,7 +429,7 @@
         .complaint-card .c-meta  { font-size:11px; color:var(--muted); margin:4px 0 8px; }
         .complaint-card .c-desc  { font-size:13px; color:#444; line-height:1.6; }
 
-        /* ── SEARCH BAR ── */
+        /* ── SEARCH ROW ── */
         .search-row {
             display:flex; align-items:center; gap:8px;
             background:var(--bg); border:1px solid var(--border);
@@ -401,10 +442,8 @@
             font-size:13px; color:var(--text); flex:1;
         }
 
-        /* ── LEAVE STATUS ── */
-        .leave-timeline {
-            display:flex; flex-direction:column; gap:12px;
-        }
+        /* ── LEAVE TIMELINE ── */
+        .leave-timeline { display:flex; flex-direction:column; gap:12px; }
 
         .leave-item {
             border:1px solid var(--border);
@@ -412,31 +451,109 @@
             position:relative;
         }
 
-        .leave-item .leave-status {
-            position:absolute; top:14px; right:14px;
-        }
-
+        .leave-item .leave-status { position:absolute; top:14px; right:14px; }
         .leave-item h4 { font-size:14px; font-weight:600; margin-bottom:6px; }
 
-        .leave-item .meta { font-size:12px; color:var(--muted); display:grid; grid-template-columns:1fr 1fr; gap:4px 20px; margin-top:8px; }
+        .leave-item .meta {
+            font-size:12px; color:var(--muted);
+            display:grid; grid-template-columns:1fr 1fr;
+            gap:4px 20px; margin-top:8px;
+        }
         .leave-item .meta span { display:flex; gap:6px; }
 
         /* ── FOOTER ── */
         .footer {
             padding: 12px 24px; font-size:11px; color:var(--muted);
-            display:flex; justify-content:space-between;
+            display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
             border-top:1px solid var(--border); background:var(--card);
         }
 
-        ::-webkit-scrollbar { width:5px; }
+        ::-webkit-scrollbar { width:5px; height:5px; }
         ::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:10px; }
+
+        /* ════════════════════════════════════════════
+           RESPONSIVE MEDIA QUERIES
+        ════════════════════════════════════════════ */
+
+        /* Tablets */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+            }
+
+            .sidebar.open { transform: translateX(0); }
+
+            .sidebar-overlay.open { display: block; }
+
+            .main { margin-left: 0; }
+
+            .btn-hamburger {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .topbar { padding: 0 16px; }
+
+            .topbar-user { display: none; }
+
+            .page { padding: 16px; }
+
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+            .form-wrap { padding: 16px; max-width: 100%; }
+        }
+
+        /* Mobile phones */
+        @media (max-width: 540px) {
+            .stats-grid { grid-template-columns: 1fr; gap: 10px; }
+
+            .stat-card { padding: 14px; gap: 12px; }
+            .stat-icon { width: 40px; height: 40px; font-size: 18px; }
+            .stat-value { font-size: 20px; }
+
+            .page-title { font-size: 18px; }
+            .page-header { margin-bottom: 14px; }
+
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full { grid-column: 1; }
+            .form-section-label { grid-column: 1; }
+            .form-actions { grid-column: 1; }
+
+            .profile-card { flex-direction: column; align-items: center; }
+            .profile-avatar { width: 80px; height: 80px; font-size: 32px; }
+            .profile-details { width: 100%; min-width: unset; }
+            .profile-details td:first-child { width: 45%; }
+
+            .leave-item .meta { grid-template-columns: 1fr; }
+            .leave-item .leave-status { position: static; margin-top: 10px; }
+
+            .btn { padding: 8px 12px; font-size: 12px; }
+
+            .card-body { padding: 14px; }
+            .card-header { padding: 12px 14px; }
+
+            .footer { flex-direction: column; text-align: center; }
+        }
+
+        /* Very small phones */
+        @media (max-width: 360px) {
+            .page { padding: 10px; }
+            .topbar-title { font-size: 14px; }
+            .stat-card { gap: 8px; padding: 12px; }
+        }
     </style>
 </head>
 <body>
+
+<!-- Overlay for mobile sidebar -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <div class="shell">
 
     <!-- ══════ SIDEBAR ══════ -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <div class="brand-icon">🏠</div>
             <div>
@@ -453,39 +570,39 @@
 
         <div class="nav-section-label">Main</div>
 
-        <button class="nav-item active" id="nav-home" onclick="showStudentPage('home')">
+        <button class="nav-item active" id="nav-home" onclick="showStudentPage('home'); closeSidebar()">
             <span class="nav-icon">📊</span> Dashboard
         </button>
 
-        <button class="nav-item" id="nav-profile" onclick="showStudentPage('profile')">
+        <button class="nav-item" id="nav-profile" onclick="showStudentPage('profile'); closeSidebar()">
             <span class="nav-icon">👤</span> My Profile
         </button>
 
         <div class="nav-section-label">Hostel</div>
 
-        <button class="nav-item" id="nav-notices" onclick="showStudentPage('notices')">
+        <button class="nav-item" id="nav-notices" onclick="showStudentPage('notices'); closeSidebar()">
             <span class="nav-icon">🔔</span> Notices
         </button>
 
-        <button class="nav-item" id="nav-rent" onclick="showStudentPage('rent')">
+        <button class="nav-item" id="nav-rent" onclick="showStudentPage('rent'); closeSidebar()">
             <span class="nav-icon">💳</span> My Rent
         </button>
 
-        <button class="nav-item" id="nav-employees" onclick="showStudentPage('employees')">
+        <button class="nav-item" id="nav-employees" onclick="showStudentPage('employees'); closeSidebar()">
             <span class="nav-icon">👔</span> Staff Directory
         </button>
 
-        <button class="nav-item" id="nav-facilities" onclick="showStudentPage('facilities')">
+        <button class="nav-item" id="nav-facilities" onclick="showStudentPage('facilities'); closeSidebar()">
             <span class="nav-icon">🏗</span> Facilities
         </button>
 
         <div class="nav-section-label">Requests</div>
 
-        <button class="nav-item" id="nav-complaints" onclick="showStudentPage('complaints')">
+        <button class="nav-item" id="nav-complaints" onclick="showStudentPage('complaints'); closeSidebar()">
             <span class="nav-icon">📢</span> My Complaints
         </button>
 
-        <button class="nav-item" id="nav-leave" onclick="showStudentPage('leave')">
+        <button class="nav-item" id="nav-leave" onclick="showStudentPage('leave'); closeSidebar()">
             <span class="nav-icon">🚪</span> Leave / Outing
         </button>
 
@@ -500,7 +617,10 @@
     <div class="main">
 
         <header class="topbar">
-            <div class="topbar-title" id="pageTitle">Student Dashboard</div>
+            <div class="topbar-left">
+                <button class="btn-hamburger" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Open navigation">☰</button>
+                <div class="topbar-title" id="pageTitle">Student Dashboard</div>
+            </div>
             <div class="topbar-right">
                 <div class="topbar-user" id="topbarName"></div>
                 <a href="login.html" style="font-size:18px;color:var(--muted);text-decoration:none;" title="Logout">✕</a>
@@ -540,7 +660,6 @@
                 </div>
             </div>
 
-            <!-- Quick notices on dashboard -->
             <div class="card">
                 <div class="card-header">
                     <h2>🔔 Latest Notices</h2>
@@ -602,7 +721,7 @@
                 <input type="text" placeholder="Search staff…" oninput="filterEmpTable(this.value)">
             </div>
             <div class="card">
-                <div class="card-body" id="employees"></div>
+                <div class="card-body tbl-wrap" id="employees"></div>
             </div>
         </div>
 
@@ -631,7 +750,7 @@
             <div class="card" style="margin-bottom:20px;">
                 <div class="card-header"><h2>➕ Submit New Complaint</h2></div>
                 <div class="card-body">
-                    <div class="form-wrap" style="max-width:100%;">
+                    <div class="form-wrap" style="max-width:100%;border:none;padding:0;">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label>Complaint Title <span class="req">*</span></label>
@@ -675,11 +794,10 @@
                 </div>
             </div>
 
-            <!-- Leave Form -->
             <div class="card" style="margin-bottom:20px;">
                 <div class="card-header"><h2>📝 Submit Leave Request</h2></div>
                 <div class="card-body">
-                    <div class="form-wrap" style="max-width:100%;">
+                    <div class="form-wrap" style="max-width:100%;border:none;padding:0;">
                         <div class="form-grid">
                             <div class="form-section-label">📍 Destination & Purpose</div>
 
@@ -731,7 +849,7 @@
                             </div>
                         </div>
 
-                        <div style="display:flex;gap:10px;margin-top:8px;">
+                        <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;">
                             <button class="btn btn-primary" onclick="submitLeave()">✈️ Submit Leave Request</button>
                             <button class="btn btn-secondary" onclick="clearLeaveForm()">✕ Clear</button>
                         </div>
@@ -739,7 +857,6 @@
                 </div>
             </div>
 
-            <!-- Past Leave Requests -->
             <div class="card">
                 <div class="card-header"><h2>📋 My Leave History</h2></div>
                 <div class="card-body" id="myLeavesList"></div>
@@ -755,6 +872,19 @@
 
 <script src="js/student.js"></script>
 <script>
+    /* ═══════════════════════════
+       SIDEBAR TOGGLE (mobile)
+    ═══════════════════════════ */
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebarOverlay').classList.toggle('open');
+    }
+
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('open');
+    }
+
     /* ═══════════════════════════
        PAGE ROUTER
     ═══════════════════════════ */
@@ -775,7 +905,6 @@
 
         document.getElementById('pageTitle').textContent = pageTitles[name] || name;
 
-        // Lazy-load sections
         if (name === 'notices') loadNotices();
         if (name === 'rent')    loadRent();
         if (name === 'complaints') loadMyComplaints();
@@ -783,7 +912,7 @@
     }
 
     /* ═══════════════════════════
-       NOTICE SEARCH FILTER
+       FILTERS
     ═══════════════════════════ */
     function filterNotices(q) {
         document.querySelectorAll('#noticeList .notice-card').forEach(card => {
@@ -791,9 +920,6 @@
         });
     }
 
-    /* ═══════════════════════════
-       EMPLOYEE TABLE FILTER
-    ═══════════════════════════ */
     function filterEmpTable(q) {
         document.querySelectorAll('#employees tbody tr').forEach(tr => {
             tr.style.display = tr.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
@@ -816,19 +942,14 @@
         document.getElementById('leaveDate').addEventListener('change', calcLeaveDays);
         document.getElementById('returnDate').addEventListener('change', calcLeaveDays);
 
-        // Set today as default leave date
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('leaveDate').value = today;
 
-        // Set default time
         const now = new Date();
         document.getElementById('leaveTime').value =
             String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
     });
 
-    /* ═══════════════════════════
-       CLEAR LEAVE FORM
-    ═══════════════════════════ */
     function clearLeaveForm() {
         ['leaveReason','leaveDestination','leaveDetails','leaveDate','leaveTime','returnDate','leaveDays']
             .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
