@@ -67,7 +67,7 @@ Add screenshots of:
 <img width="1918" height="901" alt="image" src="https://github.com/user-attachments/assets/56bdd876-5d67-402f-85b9-ca4d2b19f174" />
 
 * Student Dashboard
-* <img width="1919" height="904" alt="image" src="https://github.com/user-attachments/assets/5cf42bc3-2f8a-43dd-9278-cb65570c6225" />
+<img width="1919" height="904" alt="image" src="https://github.com/user-attachments/assets/5cf42bc3-2f8a-43dd-9278-cb65570c6225" />
 
 ## 👩‍💻 Developer
 
