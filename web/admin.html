@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — GHMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* ══════════════════════════════════════════
+           CSS VARIABLES & RESET
+        ══════════════════════════════════════════ */
+        :root {
+            --sidebar-w: 256px;
+            --navy:      #0f2240;
+            --navy-light:#16325a;
+            --accent:    #2563eb;
+            --accent-hover:#1d4ed8;
+            --gold:      #f59e0b;
+            --green:     #10b981;
+            --red:       #ef4444;
+            --purple:    #8b5cf6;
+            --bg:        #f1f5f9;
+            --card:      #ffffff;
+            --border:    #e2e8f0;
+            --text:      #1e293b;
+            --muted:     #64748b;
+            --sidebar-text: #94a3b8;
+            --sidebar-active: #ffffff;
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* ══════════════════════════════════════════
+           LAYOUT SHELL
+        ══════════════════════════════════════════ */
+        .shell { display:flex; min-height:100vh; }
+
+        /* ══════════════════════════════════════════
+           SIDEBAR
+        ══════════════════════════════════════════ */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--navy);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: fixed;
+            top:0; left:0; bottom:0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .brand-icon {
+            width: 40px; height: 40px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .brand-name { font-size: 16px; font-weight: 700; color: #fff; letter-spacing:-0.01em; }
+        .brand-sub  { font-size: 10px; color: var(--sidebar-text); letter-spacing:.05em; text-transform:uppercase; }
+
+        .sidebar-user {
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .user-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+        }
+
+        .user-name  { font-size: 13px; font-weight: 600; color: #fff; }
+        .user-role  { font-size: 11px; color: var(--sidebar-text); }
+
+        .nav-section-label {
+            padding: 16px 20px 6px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: #4a6080;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            border-radius: 0;
+            transition: background .15s, color .15s;
+            position: relative;
+        }
+
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+
+        .nav-item.active {
+            background: rgba(37,99,235,0.2);
+            color: #fff;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: var(--accent);
+            border-radius: 0 2px 2px 0;
+        }
+
+        .nav-icon { width: 18px; text-align: center; font-size: 15px; flex-shrink: 0; }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--accent);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 1px 7px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
+
+        /* ══════════════════════════════════════════
+           MAIN AREA
+        ══════════════════════════════════════════ */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ══════════════════════════════════════════
+           TOPBAR
+        ══════════════════════════════════════════ */
+        .topbar {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky; top: 0; z-index: 50;
+        }
+
+        .topbar-left { display:flex; align-items:center; gap:16px; }
+
+        .topbar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .topbar-breadcrumb {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .topbar-right { display:flex; align-items:center; gap:12px; }
+
+        .topbar-search {
+            display: flex;
+            align-items: center;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0 12px;
+            gap: 8px;
+            height: 36px;
+        }
+
+        .topbar-search input {
+            border: none; background: none; outline: none;
+            font-size: 13px; color: var(--text);
+            width: 200px;
+        }
+
+        .topbar-search input::placeholder { color: var(--muted); }
+
+        .btn-icon {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            color: var(--muted);
+        }
+
+        .btn-icon:hover { background: var(--bg); }
+
+        /* ══════════════════════════════════════════
+           PAGE CONTENT
+        ══════════════════════════════════════════ */
+        .page { padding: 24px; flex: 1; }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .page-title { font-size: 22px; font-weight: 700; color: var(--text); }
+        .page-sub   { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+        /* ══════════════════════════════════════════
+           STAT CARDS
+        ══════════════════════════════════════════ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .stat-icon {
+            width: 46px; height: 46px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.blue   { background: #dbeafe; }
+        .stat-icon.green  { background: #d1fae5; }
+        .stat-icon.amber  { background: #fef3c7; }
+        .stat-icon.purple { background: #ede9fe; }
+        .stat-icon.red    { background: #fee2e2; }
+
+        .stat-value { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1.1; }
+        .stat-label { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+        .stat-delta {
+            margin-top: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .stat-delta.up   { color: var(--green); }
+        .stat-delta.down { color: var(--red); }
+
+        /* ══════════════════════════════════════════
+           CHARTS ROW
+        ══════════════════════════════════════════ */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .chart-card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .chart-card canvas { max-height: 220px; }
+
+        /* ══════════════════════════════════════════
+           SECTION CARDS (for module pages)
+        ══════════════════════════════════════════ */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fafbff;
+        }
+
+        .card-header h2 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .card-body { padding: 20px; }
+
+        /* ══════════════════════════════════════════
+           BUTTONS
+        ══════════════════════════════════════════ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 18px;
+            border-radius: 8px;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s, transform .1s;
+            text-decoration: none;
+        }
+
+        .btn:active { transform: scale(.98); }
+
+        .btn-primary  { background: var(--accent); color: #fff; }
+        .btn-primary:hover { background: var(--accent-hover); }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { background: var(--border); }
+
+        .btn-danger   { background: #fee2e2; color: var(--red); }
+        .btn-danger:hover { background: var(--red); color: #fff; }
+
+        .btn-success  { background: #d1fae5; color: #065f46; }
+        .btn-success:hover { background: var(--green); color: #fff; }
+
+        .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        /* ══════════════════════════════════════════
+           SEARCH BAR (in-module)
+        ══════════════════════════════════════════ */
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0 12px;
+            gap: 8px;
+            height: 38px;
+            margin-left: auto;
+        }
+
+        .search-box input {
+            border: none; background: none; outline: none;
+            font-size: 13px; color: var(--text); width: 220px;
+        }
+
+        .search-box input::placeholder { color: var(--muted); }
+
+        /* ══════════════════════════════════════════
+           TABLES
+        ══════════════════════════════════════════ */
+        .tbl-wrap { overflow-x: auto; }
+
+        table.data-tbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        table.data-tbl thead th {
+            background: #f8fafc;
+            padding: 11px 14px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            color: var(--muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        table.data-tbl tbody td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text);
+            vertical-align: middle;
+        }
+
+        table.data-tbl tbody tr:hover td { background: #f8fafc; }
+
+        table.data-tbl tbody tr:last-child td { border-bottom: none; }
+
+        /* Action buttons inside tables */
+        .btn-edit, .btn-del {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 4px;
+            transition: opacity .15s, transform .1s;
+        }
+        .btn-edit { background: #e0edff; color: #1d4ed8; }
+        .btn-del  { background: #fee2e2; color: #dc2626; }
+        .btn-edit:hover { opacity:.85; transform:translateY(-1px); }
+        .btn-del:hover  { opacity:.85; transform:translateY(-1px); }
+
+        /* ══════════════════════════════════════════
+           FORMS
+        ══════════════════════════════════════════ */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0 20px;
+        }
+
+        .form-grid.cols-1 { grid-template-columns: 1fr; }
+        .form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 16px;
+        }
+
+        .form-group.full { grid-column: 1/-1; }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group label .req { color: var(--red); margin-left: 2px; }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 13px;
+            color: var(--text);
+            background: #fff;
+            outline: none;
+            font-family: inherit;
+            transition: border-color .15s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+
+        .form-group textarea { min-height: 80px; resize: vertical; }
+
+        .form-group input[readonly] { background: #f8fafc; color: var(--muted); cursor: not-allowed; }
+
+        .form-section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--accent);
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e8edf5;
+            margin: 20px 0 14px;
+            grid-column: 1/-1;
+        }
+
+        .form-wrap {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px 28px;
+            max-width: 760px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            grid-column: 1/-1;
+        }
+
+        /* ══════════════════════════════════════════
+           STATUS BADGES
+        ══════════════════════════════════════════ */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-blue   { background: #dbeafe; color: #1d4ed8; }
+        .badge-green  { background: #d1fae5; color: #065f46; }
+        .badge-amber  { background: #fef3c7; color: #92400e; }
+        .badge-red    { background: #fee2e2; color: #991b1b; }
+        .badge-purple { background: #ede9fe; color: #5b21b6; }
+
+        /* ══════════════════════════════════════════
+           EMPTY STATE
+        ══════════════════════════════════════════ */
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--muted);
+        }
+        .empty-state .es-icon { font-size: 40px; margin-bottom: 12px; }
+        .empty-state p { font-size: 13px; }
+
+        /* ══════════════════════════════════════════
+           FOOTER
+        ══════════════════════════════════════════ */
+        .footer { 
+            padding: 12px 24px;
+            font-size: 11px;
+            color: var(--muted);
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--border);
+            background: var(--card);
+        }
+
+        /* ══════════════════════════════════════════
+           RECENT ACTIVITY LIST
+        ══════════════════════════════════════════ */
+        .activity-list { list-style: none; }
+
+        .activity-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 13px;
+        }
+
+        .activity-list li:last-child { border-bottom: none; }
+
+        .act-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+
+        /* ══════════════════════════════════════════
+           SCROLLBAR
+        ══════════════════════════════════════════ */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* ══════════════════════════════════════════
+           HIDDEN PAGES
+        ══════════════════════════════════════════ */
+        .pg { display:none; }
+        .pg.active { display:block; }
+    </style>
+</head>
+<body>
+
+<div class="shell">
+
+    <!-- ════════════════ SIDEBAR ════════════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">🏠</div>
+            <div>
+                <div class="brand-name">GHMS</div>
+                <div class="brand-sub">Admin Panel</div>
+            </div>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">A</div>
+            <div>
+                <div class="user-name">Administrator</div>
+                <div class="user-role">Hostel Manager</div>
+            </div>
+        </div>
+
+        <div class="nav-section-label">Main</div>
+
+        <button class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')">
+            <span class="nav-icon">📊</span> Dashboard
+        </button>
+
+        <div class="nav-section-label">Management</div>
+
+        <button class="nav-item" id="nav-students" onclick="showPage('students'); studentSection();">
+            <span class="nav-icon">👤</span> Students
+        </button>
+        <button class="nav-item" id="nav-employees" onclick="showPage('employees'); employeeSection();">
+            <span class="nav-icon">👔</span> Employees
+        </button>
+        <button class="nav-item" id="nav-rooms" onclick="showPage('rooms'); roomSection();">
+            <span class="nav-icon">🛏</span> Rooms
+        </button>
+        <button class="nav-item" id="nav-facilities" onclick="showPage('facilities'); facilitySection();">
+            <span class="nav-icon">🏗</span> Facilities
+        </button>
+
+        <div class="nav-section-label">Operations</div>
+
+        <button class="nav-item" id="nav-notices" onclick="showPage('notices'); noticeSection();">
+            <span class="nav-icon">🔔</span> Notices
+        </button>
+        <button class="nav-item" id="nav-rent" onclick="showPage('rent'); rentSection();">
+            <span class="nav-icon">💳</span> Rent
+        </button>
+        <button class="nav-item" id="nav-complaints" onclick="showPage('complaints'); complaintSection();">
+            <span class="nav-icon">📢</span> Complaints
+        </button>
+        <button class="nav-item" id="nav-leaves" onclick="showPage('leaves'); leaveAdminSection();">
+            <span class="nav-icon">🚪</span> Leave Requests
+        </button>
+
+        <div class="sidebar-footer">
+            <a href="login.html" class="nav-item" style="padding:10px 0; border-top:1px solid rgba(255,255,255,0.07); margin-top:4px;">
+                <span class="nav-icon">↩</span> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- ════════════════ MAIN ════════════════ -->
+    <div class="main">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="topbar-title" id="topbar-title">Dashboard</div>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-search">
+                    <span style="color:var(--muted)">🔍</span>
+                    <input type="text" id="globalSearch" placeholder="Search across all records…" oninput="globalSearchHandler(this.value)">
+                </div>
+                <div class="btn-icon" title="Notifications">🔔</div>
+                <a href="login.html" class="btn-icon" title="Logout">✕</a>
+            </div>
+        </header>
+
+        <!-- ════ PAGE: DASHBOARD ════ -->
+        <div class="page pg active" id="pg-dashboard">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">Welcome back, Admin 👋</div>
+                    <div class="page-sub">Here's what's happening in your hostel today.</div>
+                </div>
+                <button class="btn btn-primary" onclick="refreshDashboard()">↻ Refresh</button>
+            </div>
+
+            <!-- Stat Cards -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">👥</div>
+                    <div>
+                        <div class="stat-value" id="stat-students">—</div>
+                        <div class="stat-label">Total Students</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">🛏</div>
+                    <div>
+                        <div class="stat-value" id="stat-rooms">—</div>
+                        <div class="stat-label">Rooms Available</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon amber">📢</div>
+                    <div>
+                        <div class="stat-value" id="stat-complaints">—</div>
+                        <div class="stat-label">Open Complaints</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">🚪</div>
+                    <div>
+                        <div class="stat-value" id="stat-leaves">—</div>
+                        <div class="stat-label">Leave Requests</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-row">
+                <div class="chart-card">
+                    <h3>📈 Monthly Rent Collection</h3>
+                    <canvas id="rentChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>📊 Complaints by Category</h3>
+                    <canvas id="complaintChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Second charts row -->
+            <div class="charts-row">
+                <div class="chart-card">
+                    <h3>🏠 Room Occupancy by Floor</h3>
+                    <canvas id="roomChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>📋 Recent Activity</h3>
+                    <ul class="activity-list" id="activityList">
+                        <li><span class="act-dot"></span><span>Loading activity…</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════ PAGE: STUDENTS ════ -->
+        <div class="page pg" id="pg-students">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">👤 Students</div>
+                    <div class="page-sub">Manage all hostel residents</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Student Records</h2>
+                    <div style="display:flex;gap:10px;align-items:center;">
+                        <div class="search-box">
+                            <span>🔍</span>
+                            <input type="text" id="studentSearch" placeholder="Search students…" oninput="filterTable('studentTableBody', this.value)">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="action-row">
+                        <button class="btn btn-primary" onclick="showStudentForm()">＋ Add Student</button>
+                        <button class="btn btn-secondary" onclick="showStudents()">📋 View All</button>
+                    </div>
+                    <div id="content"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════ PAGE: EMPLOYEES ════ -->
+        <div class="page pg" id="pg-employees">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">👔 Employees</div>
+                    <div class="page-sub">Hostel staff directory</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Employee Records</h2>
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" placeholder="Search employees…" oninput="filterTable('employeeTableBody', this.value)">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="action-row">
+                        <button class="btn btn-primary" onclick="showEmployeeForm()">＋ Add Employee</button>
+                        <button class="btn btn-secondary" onclick="showEmployees()">📋 View All</button>
+                    </div>
+                    <div id="employeeContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════ PAGE: ROOMS ════ -->
+        <div class="page pg" id="pg-rooms">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">🛏 Rooms</div>
+                    <div class="page-sub">Room inventory & occupancy</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Room Records</h2>
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" placeholder="Search rooms…" oninput="filterTable('roomTableBody', this.value)">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="action-row">
+                        <button class="btn btn-primary" onclick="showRoomForm()">＋ Add Room</button>
+                        <button class="btn btn-secondary" onclick="showRooms()">📋 View All</button>
+                    </div>
+                    <div id="roomContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════ PAGE: FACILITIES ════ -->
+        <div class="page pg" id="pg-facilities">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">🏗 Facilities</div>
+                    <div class="page-sub">Hostel amenities & services</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Facility Records</h2>
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" placeholder="Search facilities…" oninput="filterTable('facilityTableBody', this.value)">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="action-row">
+                        <button class="btn btn-primary" onclick="showFacilityForm()">＋ Add Facility</button>
+                        <button class="btn btn-secondary" onclick="showFacilities()">📋 View All</button>
+                    </div>
+                    <div id="facilityContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════ PAGE: NOTICES ════ -->
+        <div class="page pg" id="pg-notices">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">🔔 Notices</div>
+                    <div class="page-sub">Post & manage hostel announcements</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Notice Board</h2>
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" placeholder="Search notices…" oninput="filterTable('noticeTableBody', this.value)">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="action-row">
+                        <button class="btn btn-primary" onclick="showNoticeForm()">＋ Post Notice</button>
+                        <button class="btn btn-secondary" onclick="showNotices()">📋 View All</button>
+                    </div>
+                    <div id="noticeContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════ PAGE: RENT ════ -->
+        <div class="page pg" id="pg-rent">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">💳 Rent</div>
+                    <div class="page-sub">Fee collection & billing management</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Rent Records</h2>
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" placeholder="Search rent records…" oninput="filterTable('rentTableBody', this.value)">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="action-row">
+                        <button class="btn btn-primary" onclick="showRentForm()">＋ Add Rent Entry</button>
+                        <button class="btn btn-secondary" onclick="showRents()">📋 View All</button>
+                    </div>
+                    <div id="rentContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════ PAGE: COMPLAINTS ════ -->
+        <div class="page pg" id="pg-complaints">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">📢 Complaints</div>
+                    <div class="page-sub">Review and resolve student complaints</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Complaint Management</h2>
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" id="complaintSearch" placeholder="Search complaints…" oninput="filterTable('complaintTableBody', this.value)">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="action-row">
+                        <button class="btn btn-secondary" onclick="showComplaints()">📋 View All Complaints</button>
+                    </div>
+                    <div id="complaintContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════ PAGE: LEAVE REQUESTS ════ -->
+        <div class="page pg" id="pg-leaves">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">🚪 Leave Requests</div>
+                    <div class="page-sub">Student out-of-hostel requests</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Leave / Out-of-Hostel Requests</h2>
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" placeholder="Search by student name…" oninput="filterTable('leaveTableBody', this.value)">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="action-row">
+                        <button class="btn btn-secondary" onclick="loadAdminLeaves()">📋 Refresh Requests</button>
+                        <span id="leavePendingBadge"></span>
+                    </div>
+                    <div id="leaveAdminContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <span><strong>Copyright © 2025.</strong> Girls Hostel Management System. All rights reserved.</span>
+            <span>Version 4.0.0</span>
+        </footer>
+    </div><!-- /main -->
+</div><!-- /shell -->
+
+<script src="js/admin.js"></script>
+<script>
+    /* ═══════════════════════════════════════════════
+       PAGE ROUTER
+    ═══════════════════════════════════════════════ */
+    function showPage(name) {
+        document.querySelectorAll('.pg').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+        const pg = document.getElementById('pg-' + name);
+        const nav = document.getElementById('nav-' + name);
+        if (pg)  pg.classList.add('active');
+        if (nav) nav.classList.add('active');
+
+        const titles = {
+            dashboard: 'Dashboard', students: 'Students', employees: 'Employees',
+            rooms: 'Rooms', facilities: 'Facilities', notices: 'Notices',
+            rent: 'Rent', complaints: 'Complaints', leaves: 'Leave Requests'
+        };
+        document.getElementById('topbar-title').textContent = titles[name] || name;
+    }
+
+    /* ═══════════════════════════════════════════════
+       SECTION ROUTING — wire old admin.js functions 
+       to the correct content div
+    ═══════════════════════════════════════════════ */
+    function studentSection()  { showPage('students');   showStudents(); }
+    function employeeSection() { showPage('employees');  showEmployees(); }
+    function roomSection()     { showPage('rooms');      showRooms(); }
+    function facilitySection() { showPage('facilities'); showFacilities(); }
+    function noticeSection()   { showPage('notices');    showNotices(); }
+    function rentSection()     { showPage('rent');       showRents(); }
+    function complaintSection(){ showPage('complaints'); showComplaints(); }
+    function leaveAdminSection(){ showPage('leaves');    loadAdminLeaves(); }
+
+    /* ═══════════════════════════════════════════════
+       TABLE SEARCH FILTER
+    ═══════════════════════════════════════════════ */
+    function filterTable(tbodyId, query) {
+        const tbody = document.getElementById(tbodyId);
+        if (!tbody) return;
+        const q = query.toLowerCase();
+        tbody.querySelectorAll('tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+    }
+
+    function globalSearchHandler(val) {
+        // Searches across whichever page is active
+        const active = document.querySelector('.pg.active');
+        if (!active) return;
+        const tbodies = active.querySelectorAll('tbody');
+        tbodies.forEach(tbody => {
+            tbody.querySelectorAll('tr').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(val.toLowerCase()) ? '' : 'none';
+            });
+        });
+    }
+
+    /* ═══════════════════════════════════════════════
+       DASHBOARD STATS & CHARTS
+    ═══════════════════════════════════════════════ */
+    let rentChartInst, complaintChartInst, roomChartInst;
+
+    async function refreshDashboard() {
+        try {
+            // Students count
+            const sr = await fetch('http://localhost:8080/viewStudents');
+            const sd = await sr.text();
+            const sCount = sd.trim() ? sd.trim().split('\n').filter(r => r.trim()).length : 0;
+            document.getElementById('stat-students').textContent = sCount;
+
+            // Rooms available
+            const rr = await fetch('http://localhost:8080/viewRooms');
+            const rd = await rr.text();
+            let avail = 0, totalCap = 0, occupied = 0;
+            const roomRows = rd.trim().split('\n').filter(r => r.trim());
+            const floorData = {};
+            roomRows.forEach(row => {
+                const p = row.split(',');
+                const cap  = parseInt(p[1]) || 0;
+                const occ  = parseInt(p[2]) || 0;
+                totalCap  += cap;
+                occupied  += occ;
+                avail     += (cap - occ);
+                const fl = Math.floor((parseInt(p[0]) || 0) / 100);
+                if (!floorData[fl]) floorData[fl] = {cap:0, occ:0};
+                floorData[fl].cap += cap;
+                floorData[fl].occ += occ;
+            });
+            document.getElementById('stat-rooms').textContent = avail + ' free';
+
+            // Leave requests
+            try {
+                const lr = await fetch('http://localhost:8080/viewLeaves');
+                const ld = await lr.text();
+                const lCount = ld.trim() ? ld.trim().split('\n').filter(r => r.trim()).length : 0;
+                document.getElementById('stat-leaves').textContent = lCount;
+            } catch(e) {
+                document.getElementById('stat-leaves').textContent = '—';
+            }
+
+            // Complaints
+            try {
+                const cr = await fetch('http://localhost:8080/viewComplaints');
+                const cd = await cr.text();
+                const rows = cd.trim().split('\n').filter(r => r.trim());
+                document.getElementById('stat-complaints').textContent = rows.length;
+
+                // Complaint chart by category
+                const cats = {};
+                rows.forEach(row => {
+                    const p = row.split(',');
+                    const cat = p[4] || 'Other';
+                    cats[cat] = (cats[cat] || 0) + 1;
+                });
+                renderComplaintChart(Object.keys(cats), Object.values(cats));
+            } catch(e) {
+                document.getElementById('stat-complaints').textContent = '—';
+            }
+
+            // Room occupancy chart
+            renderRoomChart(floorData);
+
+            // Rent chart (placeholder months)
+            renderRentChart();
+
+            // Activity
+            renderActivity(sCount, avail);
+
+        } catch(e) {
+            console.warn('Dashboard load error:', e);
+        }
+    }
+
+    function renderRentChart() {
+        const ctx = document.getElementById('rentChart').getContext('2d');
+        if (rentChartInst) rentChartInst.destroy();
+        rentChartInst = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                datasets: [{
+                    label: 'Rent Collected (₹)',
+                    data: [42000,38000,45000,51000,49000,55000,52000,48000,60000,57000,63000,58000],
+                    backgroundColor: 'rgba(37,99,235,0.15)',
+                    borderColor: '#2563eb',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    function renderComplaintChart(labels, data) {
+        const ctx = document.getElementById('complaintChart').getContext('2d');
+        if (complaintChartInst) complaintChartInst.destroy();
+        if (!labels.length) {
+            labels = ['No Data']; data = [1];
+        }
+        complaintChartInst = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels,
+                datasets: [{
+                    data,
+                    backgroundColor: ['#2563eb','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 11 } } }
+                },
+                cutout: '60%'
+            }
+        });
+    }
+
+    function renderRoomChart(floorData) {
+        const ctx = document.getElementById('roomChart').getContext('2d');
+        if (roomChartInst) roomChartInst.destroy();
+        const floors = Object.keys(floorData).sort();
+        if (!floors.length) return;
+        roomChartInst = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: floors.map(f => 'Floor ' + f),
+                datasets: [
+                    {
+                        label: 'Occupied',
+                        data: floors.map(f => floorData[f].occ),
+                        backgroundColor: '#2563eb',
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'Available',
+                        data: floors.map(f => floorData[f].cap - floorData[f].occ),
+                        backgroundColor: '#d1fae5',
+                        borderRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, stacked: true, grid: { color: '#f1f5f9' } },
+                    x: { stacked: true, grid: { display: false } }
+                },
+                plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }
+            }
+        });
+    }
+
+    function renderActivity(students, availRooms) {
+        const items = [
+            { text: `${students} students currently registered`, time: 'Live' },
+            { text: `${availRooms} beds available across all floors`, time: 'Live' },
+            { text: 'Dashboard last refreshed', time: new Date().toLocaleTimeString() }
+        ];
+        document.getElementById('activityList').innerHTML = items.map(i =>
+            `<li><span class="act-dot"></span><div><span>${i.text}</span><div style="font-size:11px;color:var(--muted);margin-top:2px;">${i.time}</div></div></li>`
+        ).join('');
+    }
+
+    /* ═══════════════════════════════════════════════
+       SECTION BRIDGE — old JS uses getElementById('content')
+       We redirect those writes to the correct page div
+    ═══════════════════════════════════════════════ */
+    // Override content getter so old admin.js continues to work
+    // employeeContent, roomContent, etc. are defined in the page HTML.
+    // The original admin.js writes to 'content' for Students,
+    // so that div is already correct on the students page.
+
+    // INIT
+    window.addEventListener('DOMContentLoaded', () => {
+        refreshDashboard();
+    });
+</script>
+</body>
+</html>
