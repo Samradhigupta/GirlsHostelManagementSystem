@@ -7,8 +7,6 @@ import dao.RoomDAO;
 import model.Room;
 
 import java.io.*;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 
 public class UpdateRoomHandler
         implements HttpHandler {
